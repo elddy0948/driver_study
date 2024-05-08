@@ -27,7 +27,34 @@ void SPI_PeripheralClockControl(SPI_RegDef_t* pSPIx, uint8_t EnorDi)
 
 void SPI_Init(SPI_Handle_t* pSPIHandle)
 {
+	uint32_t tempRegister = 0;
 
+	tempRegister |= (pSPIHandle->SPIConfig.SPI_DeviceMode << SPI_CR1_MSTR);	// Configure device mode
+
+	// Bus configure
+	if (pSPIHandle->SPIConfig.SPI_BusConfig == SPI_BUS_FULL_DUPLEX)
+	{
+		// BIDI Mode clear
+		tempRegister &= ~(1 << SPI_CR1_BIDI_MODE);
+	}
+	else if (pSPIHandle->SPIConfig.SPI_BusConfig == SPI_BUS_HALF_DUPLEX)
+	{
+		// BIDI Mode set
+		tempRegister |= (1 << SPI_CR1_BIDI_MODE);
+	}
+	else if (pSPIHandle->SPIConfig.SPI_BusConfig == SPI_BUS_SIMPLEX_RX)
+	{
+		// BIDI Mode clear, RXONLY set
+		tempRegister &= ~(1 << SPI_CR1_BIDI_MODE);
+		tempRegister |= (1 << SPI_CR1_RX_ONLY);
+	}
+
+	tempRegister |= (pSPIHandle->SPIConfig.SPI_SclkSpeed << SPI_CR1_MSTR);	// Configure baud rate
+	tempRegister |= (pSPIHandle->SPIConfig.SPI_CRCL << SPI_CR1_CRCL);
+	tempRegister |= (pSPIHandle->SPIConfig.SPI_CPOL << SPI_CR1_CPOL);
+	tempRegister |= (pSPIHandle->SPIConfig.SPI_CPHA << SPI_CR1_CPHA);
+
+	pSPIHandle->pSPIx->CR1 = tempRegister;
 }
 
 void SPI_DeInit(SPI_RegDef_t* pSPIx)

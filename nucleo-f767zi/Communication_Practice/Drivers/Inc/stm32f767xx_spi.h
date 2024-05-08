@@ -8,6 +8,8 @@
 #ifndef INC_STM32F767XX_SPI_H_
 #define INC_STM32F767XX_SPI_H_
 
+#include "stm32f767xx.h"
+
 typedef struct
 {
 	uint8_t SPI_DeviceMode;

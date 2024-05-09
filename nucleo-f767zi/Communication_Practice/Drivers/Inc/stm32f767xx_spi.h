@@ -62,6 +62,10 @@ typedef struct
 #define SPI_SSM_EN			1
 #define SPI_SSM_DI			0
 
+#define SPI_TXE_FLAG		(1 << SPI_SR_TXE)
+#define SPI_RXNE_FLAG		(1 << SPI_SR_RXNE)
+#define SPI_BUSY_FALG		(1 << SPI_SR_BSY)
+
 /* Peripheral Clock setup */
 void SPI_PeripheralClockControl(SPI_RegDef_t* pSPIx, uint8_t EnorDi);
 

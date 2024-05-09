@@ -62,9 +62,37 @@ void SPI_DeInit(SPI_RegDef_t* pSPIx)
 
 }
 
+uint8_t SPI_GetFlagStatus(SPI_RegDef_t* pSPIx, uint32_t FlagName)
+{
+	if (pSPIx->SR & FlagName)
+	{
+		return FLAG_SET;
+	}
+	return FLAG_RESET;
+}
+
+/* This is polling based code ( blocking API call ) */
 void SPI_SendData(SPI_RegDef_t* pSPIx, uint8_t* pTxBuffer, uint32_t length)
 {
+	while (length > 0)
+	{
+		while(SPI_GetFlagStatus(pSPIx, SPI_TXE_FLAG) == FLAG_RESET);
 
+		if (pSPIx->CR1 & (1 << SPI_CR1_CRCL))
+		{
+			// 16 Bit
+			pSPIx->DR = *((uint16_t*)pTxBuffer);
+			length -= 2;
+			(uint16_t*)pTxBuffer++;
+		}
+		else
+		{
+			// 8 Bit
+			pSPIx->DR = *(pTxBuffer);
+			length--;
+			pTxBuffer++;
+		}
+	}
 }
 
 void SPI_ReceiveData(SPI_RegDef_t* pSPIx, uint8_t* pRxBuffer, uint32_t length)

@@ -63,7 +63,13 @@ int main(void)
 	SPI_GPIOInit();
 	SPI2_Init();
 
+	SPI_SSIConfig(SPI2, ENABLE);
+
+	SPI_PeripheralControl(SPI2, ENABLE);
+
 	SPI_SendData(SPI2, (uint8_t*)userData, strlen(userData));
+
+	SPI_PeripheralControl(SPI2, DISABLE);
 
 	for(;;);
 

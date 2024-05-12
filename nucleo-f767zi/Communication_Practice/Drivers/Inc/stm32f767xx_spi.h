@@ -82,4 +82,7 @@ void SPI_IRQInterruptConfig(uint8_t IRQNumber, uint8_t EnorDi);
 void SPI_IRQPriorityConfig(uint8_t IRQNumber, uint32_t IRQPriority);
 void SPI_IRQHandling(SPI_Handle_t* pHandle);
 
+void SPI_PeripheralControl(SPI_RegDef_t* pSPIx, uint8_t EnOrDi);
+void SPI_SSIConfig(SPI_RegDef_t* pSPIx, uint8_t EnOrDi);
+
 #endif /* INC_STM32F767XX_SPI_H_ */

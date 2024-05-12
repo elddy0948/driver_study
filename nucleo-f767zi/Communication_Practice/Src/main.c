@@ -1,4 +1,4 @@
-
+#include <string.h>
 #include "stm32f767xx.h"
 
 /*
@@ -31,12 +31,12 @@ void SPI_GPIOInit(void)
 	GPIO_Init(&SPIPins);
 
 	// MISO
-	SPIPins.PinConfig.PinNumber = 14;
-	GPIO_Init(&SPIPins);
+	// SPIPins.PinConfig.PinNumber = 14;
+	// GPIO_Init(&SPIPins);
 
 	// MOSI
-	SPIPins.PinConfig.PinNumber = 15;
-	GPIO_Init(&SPIPins);
+	// SPIPins.PinConfig.PinNumber = 15;
+	// GPIO_Init(&SPIPins);
 }
 
 void SPI2_Init(void)
@@ -58,7 +58,14 @@ void SPI2_Init(void)
 
 int main(void)
 {
+	char userData[] = "Hello World";
+
 	SPI_GPIOInit();
 	SPI2_Init();
+
+	SPI_SendData(SPI2, (uint8_t*)userData, strlen(userData));
+
+	for(;;);
+
 	return 0;
 }

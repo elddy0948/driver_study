@@ -29,6 +29,8 @@ void SPI_Init(SPI_Handle_t* pSPIHandle)
 {
 	uint32_t tempRegister = 0;
 
+	SPI_PeripheralClockControl(pSPIHandle->pSPIx, ENABLE);
+
 	tempRegister |= (pSPIHandle->SPIConfig.SPI_DeviceMode << SPI_CR1_MSTR);	// Configure device mode
 
 	// Bus configure

@@ -39,8 +39,26 @@ void SPI_GPIOInit(void)
 	GPIO_Init(&SPIPins);
 }
 
+void SPI2_Init(void)
+{
+	SPI_Handle_t SPI2Handle;
+
+	SPI2Handle.pSPIx = SPI2;
+
+	SPI2Handle.SPIConfig.SPI_BusConfig = SPI_BUS_FULL_DUPLEX;
+	SPI2Handle.SPIConfig.SPI_DeviceMode = SPI_DEVICE_MODE_MASTER;
+	SPI2Handle.SPIConfig.SPI_SclkSpeed = SPI_PCLK_SPEED_DIV2;
+	SPI2Handle.SPIConfig.SPI_CRCL = SPI_CRCL_8BITS;
+	SPI2Handle.SPIConfig.SPI_CPOL = SPI_CPOL_LOW;
+	SPI2Handle.SPIConfig.SPI_CPHA = SPI_CPHA_LOW;
+	SPI2Handle.SPIConfig.SPI_SSM = SPI_SSM_EN;
+
+	SPI_Init(&SPI2Handle);
+}
+
 int main(void)
 {
 	SPI_GPIOInit();
+	SPI2_Init();
 	return 0;
 }

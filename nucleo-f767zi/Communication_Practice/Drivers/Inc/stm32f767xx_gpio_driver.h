@@ -12,18 +12,18 @@
 
 typedef struct
 {
-	uint8_t GPIO_PinNumber;			// @GPIO_PIN_NUMBERS
-	uint8_t GPIO_PinMode;			// @GPIO_PIN_MODES
-	uint8_t GPIO_PinSpeed;			// @GPIO_SPEED
-	uint8_t GPIO_PinPuPdControl;	// @GPIO_PULLUP_PULLDOWN
-	uint8_t GPIO_PinOPType;			// @GPIO_OUTPUT_TYPE
-	uint8_t GPIO_PinAltFunMode;		// @GPIO_ALTERNATE_FUNCTION
+	uint8_t PinNumber;			// @GPIO_PIN_NUMBERS
+	uint8_t PinMode;			// @GPIO_PIN_MODES
+	uint8_t PinSpeed;			// @GPIO_SPEED
+	uint8_t PinPuPdControl;		// @GPIO_PULLUP_PULLDOWN
+	uint8_t PinOPType;			// @GPIO_OUTPUT_TYPE
+	uint8_t PinAltFunMode;		// @GPIO_ALTERNATE_FUNCTION
 } GPIO_PinConfig_t;
 
 typedef struct
 {
 	GPIO_RegDef_t* pGPIOx;	// this holds the base address of the GPIO port
-	GPIO_PinConfig_t GPIO_PinConfig;
+	GPIO_PinConfig_t PinConfig;
 } GPIO_Handle_t;
 
 

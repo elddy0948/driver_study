@@ -55,22 +55,41 @@ void SPI2_Init(void)
 	SPI_Init(&SPI2Handle);
 }
 
+void GPIO_ButtonInit(void)
+{
+	GPIO_Handle_t btn;
+
+	btn.pGPIOx = GPIOC;
+	btn.PinConfig.PinNumber = GPIO_PIN_NUMBER_7;
+	btn.PinConfig.PinMode = GPIO_MODE_INPUT;
+	btn.PinConfig.PinSpeed = GPIO_SPEED_FAST;
+	btn.PinConfig.PinPuPdControl = GPIO_PUPD_NO_PUPD;
+
+	GPIO_Init(&btn);
+}
+
 int main(void)
 {
 	char userData[] = "Hello World";
 
 	SPI_GPIOInit();
+	GPIO_ButtonInit();
 	SPI2_Init();
 
+	SPI_SSOEConfig(SPI2, ENABLE);
 	SPI_SSIConfig(SPI2, DISABLE);
 
-	SPI_PeripheralControl(SPI2, ENABLE);
+	for(;;)
+	{
+		while (!GPIO_ReadFromInputPin(GPIOC, GPIO_PIN_NUMBER_7));
 
-	SPI_SendData(SPI2, (uint8_t*)userData, strlen(userData));
+		// Some Delay
+		SPI_PeripheralControl(SPI2, ENABLE);
 
-	SPI_PeripheralControl(SPI2, DISABLE);
+		SPI_SendData(SPI2, (uint8_t*)userData, strlen(userData));
 
-	for(;;);
+		SPI_PeripheralControl(SPI2, DISABLE);
+	}
 
 	return 0;
 }

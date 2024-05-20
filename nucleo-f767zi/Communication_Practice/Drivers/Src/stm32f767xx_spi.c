@@ -99,7 +99,19 @@ void SPI_SendData(SPI_RegDef_t* pSPIx, uint8_t* pTxBuffer, uint32_t length)
 
 void SPI_ReceiveData(SPI_RegDef_t* pSPIx, uint8_t* pRxBuffer, uint32_t length)
 {
+	while (length > 0) {
+		while (SPI_GetFlagStatus(pSPIx, SPI_RXNE_FLAG) == FLAG_RESET);
 
+		if ((pSPIx->CR1 & (1 << SPI_CR1_CRCL))) {
+			*((uint16_t*)pRxBuffer) = pSPIx->DR;
+			length -= 2;
+			(uint16_t*)pRxBuffer++;
+		} else {
+			*(pRxBuffer) = pSPIx->DR;
+			length--;
+			pRxBuffer++;
+		}
+	}
 }
 
 void SPI_IRQInterruptConfig(uint8_t IRQNumber, uint8_t EnorDi)

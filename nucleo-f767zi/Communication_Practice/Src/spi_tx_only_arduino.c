@@ -70,7 +70,7 @@ void GPIO_ButtonInit(void)
 
 int main(void)
 {
-	char userData[] = "Hello World";
+	char user_data[] = "Hello World";
 
 	SPI_GPIOInit();
 	GPIO_ButtonInit();
@@ -86,7 +86,15 @@ int main(void)
 		// Some Delay
 		SPI_PeripheralControl(SPI2, ENABLE);
 
-		SPI_SendData(SPI2, (uint8_t*)userData, strlen(userData));
+		// Slave doesn't know how many data will receive
+		// So first, send length of data
+		uint8_t data_length = strlen(user_data);
+		SPI_SendData(SPI2, &data_length, 1);
+
+		SPI_SendData(SPI2, (uint8_t*)user_data, strlen(user_data));
+
+		// Check SPI is not in BUSY
+		SPI_GetFlagStatus(SPI2, SPI_BUSY_FALG);
 
 		SPI_PeripheralControl(SPI2, DISABLE);
 	}

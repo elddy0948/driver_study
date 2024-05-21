@@ -114,6 +114,24 @@ void SPI_ReceiveData(SPI_RegDef_t* pSPIx, uint8_t* pRxBuffer, uint32_t length)
 	}
 }
 
+uint8_t SPI_SendData_IT(SPI_Handle_t* pSPIHandle, uint8_t* pTxBuffer, uint32_t length)
+{
+	uint8_t state = pSPIHandle->TxState;
+	if (state != SPI_BUSY_IN_RX) {
+		pSPIHandle->pTxBuffer = pTxBuffer;
+		pSPIHandle->TxLength = length;
+		pSPIHandle->TxState = SPI_BUSY_IN_TX;
+		pSPIHandle->pSPIx->CR2 |= (1 << SPI_CR2_TXEIE);
+	}
+
+	return state;
+}
+
+uint8_t SPI_ReceiveData_IT(SPI_Handle_t* pSPIHandle, uint8_t* pRxBuffer, uint32_t length)
+{
+
+}
+
 void SPI_IRQInterruptConfig(uint8_t IRQNumber, uint8_t EnorDi)
 {
 

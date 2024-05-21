@@ -249,7 +249,10 @@ typedef struct
 									  (x == GPIOI) ? 8 : \
 									  (x == GPIOJ) ? 9 : 0 )
 
-// IRQ
+/*
+ * IRQ Number based on Reference Manual vector table
+ * Page 313
+ */
 #define IRQ_NUMBER_EXTI0		6
 #define IRQ_NUMBER_EXTI1		7
 #define IRQ_NUMBER_EXTI2		8
@@ -257,6 +260,11 @@ typedef struct
 #define IRQ_NUMBER_EXIT4		10
 #define IRQ_NUMBER_EXTI9_5		23
 #define IRQ_NUMBER_EXIT15_10	40
+
+#define IRQ_NUMBER_SPI1			35
+#define IRQ_NUMBER_SPI2			36
+#define IRQ_NUMBER_SPI3			51
+#define IRQ_NUMBER_SPI4			84
 
 // priority levels
 #define NVIC_IRQ_PRIORITY_0		0

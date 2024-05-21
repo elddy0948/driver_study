@@ -25,6 +25,13 @@ typedef struct
 {
 	SPI_RegDef_t *pSPIx;
 	SPI_Config_t SPIConfig;
+
+	uint8_t* pTxBuffer;
+	uint8_t* pRxBuffer;
+	uint32_t TxLength;
+	uint32_t RxLength;
+	uint8_t TxState;
+	uint8_t RxState;
 } SPI_Handle_t;
 
 /* @SPI_DEVICE_MODE */
@@ -66,6 +73,13 @@ typedef struct
 #define SPI_RXNE_FLAG		(1 << SPI_SR_RXNE)
 #define SPI_BUSY_FALG		(1 << SPI_SR_BSY)
 
+/*
+ * SPI state
+ */
+#define SPI_READY		0
+#define SPI_BUSY_IN_RX	1
+#define SPI_BUSY_IN_TX	2
+
 /* Peripheral Clock setup */
 void SPI_PeripheralClockControl(SPI_RegDef_t* pSPIx, uint8_t EnorDi);
 
@@ -76,6 +90,9 @@ void SPI_DeInit(SPI_RegDef_t* pSPIx);
 /* Data send and receive */
 void SPI_SendData(SPI_RegDef_t* pSPIx, uint8_t* pTxBuffer, uint32_t length);
 void SPI_ReceiveData(SPI_RegDef_t* pSPIx, uint8_t* pRxBuffer, uint32_t length);
+
+uint8_t SPI_SendData_IT(SPI_Handle_t* pSPIHandle, uint8_t* pTxBuffer, uint32_t length);
+uint8_t SPI_ReceiveData_IT(SPI_Handle_t* pSPIHandle, uint8_t* pRxBuffer, uint32_t length);
 
 /* IRQ Configuration and ISR handling */
 void SPI_IRQInterruptConfig(uint8_t IRQNumber, uint8_t EnorDi);

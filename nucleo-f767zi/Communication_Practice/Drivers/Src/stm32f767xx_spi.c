@@ -117,7 +117,7 @@ void SPI_ReceiveData(SPI_RegDef_t* pSPIx, uint8_t* pRxBuffer, uint32_t length)
 uint8_t SPI_SendData_IT(SPI_Handle_t* pSPIHandle, uint8_t* pTxBuffer, uint32_t length)
 {
 	uint8_t state = pSPIHandle->TxState;
-	if (state != SPI_BUSY_IN_RX) {
+	if (state != SPI_BUSY_IN_TX) {
 		pSPIHandle->pTxBuffer = pTxBuffer;
 		pSPIHandle->TxLength = length;
 		pSPIHandle->TxState = SPI_BUSY_IN_TX;
@@ -129,17 +129,45 @@ uint8_t SPI_SendData_IT(SPI_Handle_t* pSPIHandle, uint8_t* pTxBuffer, uint32_t l
 
 uint8_t SPI_ReceiveData_IT(SPI_Handle_t* pSPIHandle, uint8_t* pRxBuffer, uint32_t length)
 {
+	uint8_t state = pSPIHandle->RxState;
 
+	if (state != SPI_BUSY_IN_RX) {
+		pSPIHandle->pRxBuffer = pRxBuffer;
+		pSPIHandle->RxLength = length;
+		pSPIHandle->RxState = SPI_BUSY_IN_RX;
+		pSPIHandle->pSPIx->CR2 |= (1 << SPI_CR2_RXNEIE);
+	}
+
+	return state;
 }
 
 void SPI_IRQInterruptConfig(uint8_t IRQNumber, uint8_t EnorDi)
 {
-
+	if (EnorDi == ENABLE) {
+		if (IRQNumber <= 31) {
+			*NVIC_ISER0 |= (1 << IRQNumber);
+		} else if (IRQNumber > 31 && IRQNumber < 64) {
+			*NVIC_ISER1 |= (1 << (IRQNumber % 32));
+		} else if (IRQNumber >= 64 && IRQNumber < 96) {
+			*NVIC_ISER2 |= (1 << (IRQNumber % 64));
+		}
+	} else {
+		if (IRQNumber <= 31) {
+			*NVIC_ICER0 |= (1 << IRQNumber);
+		} else if (IRQNumber > 31 && IRQNumber < 64) {
+			*NVIC_ICER1 |= (1 << (IRQNumber % 32));
+		} else if (IRQNumber >= 64 && IRQNumber < 96) {
+			*NVIC_ICER2 |= (1 << (IRQNumber % 64));
+		}
+	}
 }
 
 void SPI_IRQPriorityConfig(uint8_t IRQNumber, uint32_t IRQPriority)
 {
-
+	uint8_t iprx = IRQNumber / 4;
+	uint8_t iprx_section = IRQNumber % 4;
+	uint8_t shift_amount = (8 * iprx_section) + (8 - NO_IPR_BITS_IMPLEMENTED);
+	*(NVIC_IPR_BASE_ADDR + iprx) |= (IRQPriority << shift_amount);
 }
 
 void SPI_IRQHandling(SPI_Handle_t* pHandle)

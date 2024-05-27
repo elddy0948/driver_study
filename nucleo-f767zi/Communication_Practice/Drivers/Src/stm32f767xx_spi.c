@@ -170,11 +170,6 @@ void SPI_IRQPriorityConfig(uint8_t IRQNumber, uint32_t IRQPriority)
 	*(NVIC_IPR_BASE_ADDR + iprx) |= (IRQPriority << shift_amount);
 }
 
-void SPI_IRQHandling(SPI_Handle_t* pHandle)
-{
-
-}
-
 void SPI_PeripheralControl(SPI_RegDef_t* pSPIx, uint8_t EnOrDi)
 {
 	if (EnOrDi == ENABLE)
@@ -208,5 +203,49 @@ void SPI_SSOEConfig(SPI_RegDef_t* pSPIx, uint8_t EnOrDi)
 	else
 	{
 		pSPIx->CR2 &= ~(1 << SPI_CR2_SSOE);
+	}
+}
+
+/*
+ * SPI Interrupt handle functions
+ */
+void SPI_TX_interrupt_handle()
+{
+
+}
+
+void SPI_RX_interrupt_handle()
+{
+
+}
+
+void SPI_OVR_interrupt_handle()
+{
+
+}
+
+void SPI_IRQHandling(SPI_Handle_t* pHandle)
+{
+	uint8_t temp1 = 0, temp2 = 0;
+
+	temp1 = pHandle->pSPIx->SR & (1 << SPI_SR_TXE);
+	temp2 = pHandle->pSPIx->CR2 & (1 << SPI_CR2_TXEIE);
+
+	if (temp1 && temp2) {
+		SPI_TX_interrupt_handle();
+	}
+
+	temp1 = pHandle->pSPIx->SR & (1 << SPI_SR_RXNE);
+	temp2 = pHandle->pSPIx->CR2 & (1 << SPI_CR2_RXNEIE);
+
+	if (temp1 && temp2) {
+		SPI_RX_interrupt_handle();
+	}
+
+	temp1 = pHandle->pSPIx->SR & (1 << SPI_SR_OVR);
+	temp2 = pHandle->pSPIx->CR2 & (1 << SPI_CR2_ERRIE);
+
+	if (temp1 && temp2) {
+		SPI_OVR_interrupt_handle();
 	}
 }

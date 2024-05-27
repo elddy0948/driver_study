@@ -80,6 +80,14 @@ typedef struct
 #define SPI_BUSY_IN_RX	1
 #define SPI_BUSY_IN_TX	2
 
+/*
+ * SPI Event
+ */
+#define SPI_EVENT_TX_COMPLETE		1
+#define SPI_EVENT_RX_COMPLETE		2
+#define SPI_EVENT_OVR_ERROR			3
+#define SPI_EVENT_CRC_ERROR			4
+
 /* Peripheral Clock setup */
 void SPI_PeripheralClockControl(SPI_RegDef_t* pSPIx, uint8_t EnorDi);
 
@@ -104,5 +112,11 @@ void SPI_SSIConfig(SPI_RegDef_t* pSPIx, uint8_t EnOrDi);
 void SPI_SSOEConfig(SPI_RegDef_t* pSPIx, uint8_t EnOrDi);
 
 uint8_t SPI_GetFlagStatus(SPI_RegDef_t* pSPIx, uint32_t FlagName);
+
+void SPI_Clear_OVR_flag(SPI_RegDef_t* pSPIx);
+void SPI_Close_transmission(SPI_Handle_t* pHandle);
+void SPI_Close_reception(SPI_Handle_t* pHandle);
+
+void SPI_ApplicationEventCallback(SPI_Handle_t* pHandle, uint8_t event);
 
 #endif /* INC_STM32F767XX_SPI_H_ */

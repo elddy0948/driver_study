@@ -7,6 +7,10 @@
 
 #include "stm32f767xx_spi.h"
 
+static void SPI_TX_interrupt_handle(SPI_Handle_t* pHandle);
+static void SPI_RX_interrupt_handle(SPI_Handle_t* pHandle);
+static void SPI_OVR_interrupt_handle(SPI_Handle_t* pHandle);
+
 void SPI_PeripheralClockControl(SPI_RegDef_t* pSPIx, uint8_t EnorDi)
 {
 	if (EnorDi == ENABLE)
@@ -105,11 +109,11 @@ void SPI_ReceiveData(SPI_RegDef_t* pSPIx, uint8_t* pRxBuffer, uint32_t length)
 		if ((pSPIx->CR1 & (1 << SPI_CR1_CRCL))) {
 			*((uint16_t*)pRxBuffer) = pSPIx->DR;
 			length -= 2;
-			(uint16_t*)pRxBuffer++;
+			(uint16_t*)pRxBuffer--;
 		} else {
 			*(pRxBuffer) = pSPIx->DR;
 			length--;
-			pRxBuffer++;
+			pRxBuffer--;
 		}
 	}
 }
@@ -170,6 +174,32 @@ void SPI_IRQPriorityConfig(uint8_t IRQNumber, uint32_t IRQPriority)
 	*(NVIC_IPR_BASE_ADDR + iprx) |= (IRQPriority << shift_amount);
 }
 
+void SPI_IRQHandling(SPI_Handle_t* pHandle)
+{
+	uint8_t temp1 = 0, temp2 = 0;
+
+	temp1 = pHandle->pSPIx->SR & (1 << SPI_SR_TXE);
+	temp2 = pHandle->pSPIx->CR2 & (1 << SPI_CR2_TXEIE);
+
+	if (temp1 && temp2) {
+		SPI_TX_interrupt_handle(pHandle);
+	}
+
+	temp1 = pHandle->pSPIx->SR & (1 << SPI_SR_RXNE);
+	temp2 = pHandle->pSPIx->CR2 & (1 << SPI_CR2_RXNEIE);
+
+	if (temp1 && temp2) {
+		SPI_RX_interrupt_handle(pHandle);
+	}
+
+	temp1 = pHandle->pSPIx->SR & (1 << SPI_SR_OVR);
+	temp2 = pHandle->pSPIx->CR2 & (1 << SPI_CR2_ERRIE);
+
+	if (temp1 && temp2) {
+		SPI_OVR_interrupt_handle(pHandle);
+	}
+}
+
 void SPI_PeripheralControl(SPI_RegDef_t* pSPIx, uint8_t EnOrDi)
 {
 	if (EnOrDi == ENABLE)
@@ -209,43 +239,76 @@ void SPI_SSOEConfig(SPI_RegDef_t* pSPIx, uint8_t EnOrDi)
 /*
  * SPI Interrupt handle functions
  */
-void SPI_TX_interrupt_handle()
+static void SPI_TX_interrupt_handle(SPI_Handle_t* pHandle)
 {
-
-}
-
-void SPI_RX_interrupt_handle()
-{
-
-}
-
-void SPI_OVR_interrupt_handle()
-{
-
-}
-
-void SPI_IRQHandling(SPI_Handle_t* pHandle)
-{
-	uint8_t temp1 = 0, temp2 = 0;
-
-	temp1 = pHandle->pSPIx->SR & (1 << SPI_SR_TXE);
-	temp2 = pHandle->pSPIx->CR2 & (1 << SPI_CR2_TXEIE);
-
-	if (temp1 && temp2) {
-		SPI_TX_interrupt_handle();
+	if ((pHandle->pSPIx->CR1 & (1 << SPI_CR1_CRCL))) {
+		pHandle->pSPIx->DR = *((uint16_t*)pHandle->pTxBuffer);
+		pHandle->TxLength--;
+		pHandle->TxLength--;
+		(uint16_t*)pHandle->pTxBuffer++;
+	} else {
+		pHandle->pSPIx->DR = *(pHandle->pTxBuffer);
+		pHandle->TxLength--;
+		pHandle->pTxBuffer++;
 	}
 
-	temp1 = pHandle->pSPIx->SR & (1 << SPI_SR_RXNE);
-	temp2 = pHandle->pSPIx->CR2 & (1 << SPI_CR2_RXNEIE);
+	if (pHandle->TxLength == 0) {
+		SPI_Close_transmission(pHandle);
+		SPI_ApplicationEventCallback(pHandle, SPI_EVENT_TX_COMPLETE);
+	}
+}
 
-	if (temp1 && temp2) {
-		SPI_RX_interrupt_handle();
+static void SPI_RX_interrupt_handle(SPI_Handle_t* pHandle)
+{
+	if ((pHandle->pSPIx->CR1 & (1 << SPI_CR1_CRCL))) {
+		*((uint16_t*)pHandle->pRxBuffer) = (uint16_t)pHandle->pSPIx->DR;
+		pHandle->RxLength -= 2;
+		(uint16_t*)pHandle->pRxBuffer--;
+	} else {
+		*(pHandle->pRxBuffer) = (uint8_t)pHandle->pSPIx->DR;
+		pHandle->RxLength--;
+		(uint8_t*)pHandle->pRxBuffer--;
 	}
 
-	temp1 = pHandle->pSPIx->SR & (1 << SPI_SR_OVR);
-	temp2 = pHandle->pSPIx->CR2 & (1 << SPI_CR2_ERRIE);
-
-	if (temp1 && temp2) {
-		SPI_OVR_interrupt_handle();
+	if (pHandle->RxLength == 0) {
+		SPI_Close_reception(pHandle);
+		SPI_ApplicationEventCallback(pHandle, SPI_EVENT_RX_COMPLETE);
 	}
+}
+
+static void SPI_OVR_interrupt_handle(SPI_Handle_t* pHandle)
+{
+	if (pHandle->TxState != SPI_BUSY_IN_TX) {
+		SPI_Clear_OVR_flag(pHandle->pSPIx);
+	}
+	SPI_ApplicationEventCallback(pHandle, SPI_EVENT_OVR_ERROR);
+}
+
+void SPI_Clear_OVR_flag(SPI_RegDef_t* pSPIx)
+{
+	uint8_t temp = 0;
+	temp = pSPIx->DR;
+	temp = pSPIx->SR;
+	(void)temp;
+}
+
+void SPI_Close_transmission(SPI_Handle_t* pHandle)
+{
+	pHandle->pSPIx->CR2 &= ~(1 << SPI_CR2_TXEIE);
+	pHandle->pTxBuffer = NULL;
+	pHandle->TxLength = 0;
+	pHandle->TxState = SPI_READY;
+}
+
+void SPI_Close_reception(SPI_Handle_t* pHandle)
+{
+	pHandle->pSPIx->CR2 &= ~(1 << SPI_CR2_RXNEIE);
+	pHandle->pRxBuffer = NULL;
+	pHandle->RxLength = 0;
+	pHandle->RxState = SPI_READY;
+}
+
+__weak void SPI_ApplicationEventCallback(SPI_Handle_t* pHandle, uint8_t event)
+{
+
 }

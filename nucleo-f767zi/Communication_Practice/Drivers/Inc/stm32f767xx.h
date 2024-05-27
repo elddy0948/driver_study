@@ -8,7 +8,10 @@
 #ifndef DRIVERS_STM32F767XX_H_
 #define DRIVERS_STM32F767XX_H_
 
+#include <stddef.h>
 #include <stdint.h>
+
+#define __weak		__attribute__((weak))
 
 #define FLASH_AXIM_BASEADDR	0x08000000U
 #define FLASH_ICTM_BASEADDR	0x00200000U

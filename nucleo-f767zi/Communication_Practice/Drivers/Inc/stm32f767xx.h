@@ -183,6 +183,25 @@ typedef struct
 	volatile uint32_t I2SPR;
 } SPI_RegDef_t;
 
+/*
+ * I2C Register definition
+ * Reference manual p.1239
+ */
+typedef struct
+{
+	volatile uint32_t CR1;		/* 0x00 */
+	volatile uint32_t CR2;		/* 0x04 */
+	volatile uint32_t OAR1;		/* 0x08 */
+	volatile uint32_t OAR2;		/* 0x0C */
+	volatile uint32_t TIMINGR;	/* 0x10 */
+	volatile uint32_t TIMEOUTR;	/* 0x14 */
+	volatile uint32_t ISR;		/* 0x18 */
+	volatile uint32_t ICR;		/* 0x1C */
+	volatile uint32_t PECR;		/* 0x20 */
+	volatile uint32_t RXDR;		/* 0x24 */
+	volatile uint32_t TXDR;		/* 0x28 */
+} I2C_RegDef_t;
+
 #define GPIOA	((GPIO_RegDef_t*)GPIOA_BASEADDR)
 #define GPIOB	((GPIO_RegDef_t*)GPIOB_BASEADDR)
 #define GPIOC	((GPIO_RegDef_t*)GPIOC_BASEADDR)
@@ -204,6 +223,11 @@ typedef struct
 #define SPI2	((SPI_RegDef_t*)SPI2_BASEADDR)
 #define SPI3	((SPI_RegDef_t*)SPI3_BASEADDR)
 #define SPI4	((SPI_RegDef_t*)SPI4_BASEADDR)
+
+#define I2C1	((I2C_RegDef_t*)I2C1_BASEADDR)
+#define I2C2	((I2C_RegDef_t*)I2C2_BASEADDR)
+#define I2C3	((I2C_RegDef_t*)I2C3_BASEADDR)
+#define I2C4	((I2C_RegDef_t*)I2C4_BASEADDR)
 
 // Clock enable macros for GPIOx peripherals
 #define GPIOA_PCLK_EN()	(RCC->AHB1ENR |= (1 << 0))
@@ -287,6 +311,19 @@ typedef struct
 #define SPI3_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 15))
 #define SPI4_PCLK_DI()		(RCC->APB2ENR &= ~(1 << 13))
 
+/*
+ * I2C peripheral
+ */
+#define I2C1_PCLK_EN()		(RCC->APB1ENR |= (1 << 21))
+#define I2C2_PCLK_EN()		(RCC->APB1ENR |= (1 << 22))
+#define I2C3_PCLK_EN()		(RCC->APB1ENR |= (1 << 23))
+#define I2C4_PCLK_EN()		(RCC->APB1ENR |= (1 << 24))
+
+#define I2C1_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 21))
+#define I2C2_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 22))
+#define I2C3_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 23))
+#define I2C4_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 24))
+
 // Some generic macros
 #define ENABLE 			1
 #define DISABLE 		0
@@ -338,7 +375,98 @@ typedef struct
 #define SPI_SR_FRLVL		9
 #define SPI_SR_FTLVL		11
 
+/*
+ * I2C Bit position definition macros
+ */
+#define I2C_CR1_PE			0
+#define I2C_CR1_TXIE		1
+#define I2C_CR1_RXIE		2
+#define I2C_CR1_ADDRIE		3
+#define I2C_CR1_NACKIE		4
+#define I2C_CR1_STOPIE		5
+#define I2C_CR1_TCIE		6
+#define I2C_CR1_ERRIE		7
+#define I2C_CR1_DNF			8
+#define I2C_CR1_ANFOFF		12
+#define I2C_CR1_TXDMAEN		14
+#define I2C_CR1_RXDMAEN		15
+#define I2C_CR1_SBC			16
+#define I2C_CR1_NOSTRETCH	17
+#define I2C_CR1_GCEN		19
+#define I2C_CR1_SMBHEN		20
+#define I2C_CR1_SMBDEN		21
+#define I2C_CR1_ALERTEN		22
+#define I2C_CR1_PECEN		23
+
+#define I2C_CR2_SADD		0
+#define I2C_CR2_RDWRN		10
+#define I2C_CR2_ADD10		11
+#define I2C_CR2_HEAD10R		12
+#define I2C_CR2_START		13
+#define I2C_CR2_STOP		14
+#define I2C_CR2_NACK		15
+#define I2C_CR2_NBYTES		16
+#define I2C_CR2_RELOAD		24
+#define I2C_CR2_AUTOEND		25
+#define I2C_CR2_PECBYTE		26
+
+#define I2C_OAR1_OA1		0
+#define I2C_OAR1_OA1_0		0
+#define I2C_OAR1_OA1_7_1	1
+#define I2C_OAR1_OA1_9_8	8
+#define I2C_OAR1_OA1MODE	10
+#define I2C_OAR1_OA1EN		15
+
+#define I2C_OAR2_OA2		1
+#define I2C_OAR2_OA2MSK		8
+#define I2C_OAR2_OA2EN		15
+
+#define I2C_TIMINGR_SCLL	0
+#define I2C_TIMINGR_SCLH	8
+#define I2C_TIMINGR_SDADEL	16
+#define I2C_TIMINGR_SCLDEL	20
+#define I2C_TIMINGR_PRESC	28
+
+#define I2C_TIMEOUTR_TIMEOUTA	0
+#define I2C_TIMEOUTR_TIDLE		12
+#define I2C_TIMEOUTR_TIMOUTEN	15
+#define I2C_TIMEOUTR_TIMEOUTB	16
+#define I2C_TIMEOUTR_TEXTEN		31
+
+#define I2C_ISR_TXE			0
+#define I2C_ISR_TXIS		1
+#define I2C_ISR_RXNE		2
+#define I2C_ISR_ADDR		3
+#define I2C_ISR_NACKF		4
+#define I2C_ISR_STOPF		5
+#define I2C_ISR_TC			6
+#define I2C_ISR_TCR			7
+#define I2C_ISR_BERR		8
+#define I2C_ISR_ARLO		9
+#define I2C_ISR_OVR			10
+#define I2C_ISR_PECERR		11
+#define I2C_ISR_TIMEOUT		12
+#define I2C_ISR_ALERT		13
+#define I2C_ISR_BUSY		15
+#define I2C_ISR_DIR			16
+#define I2C_ISR_ADDCODE		17
+
+#define I2C_ICR_ADDRCF		3
+#define I2C_ICR_NACKCF		4
+#define I2C_ICR_STOPCF		5
+#define I2C_ICR_BERRCF		8
+#define I2C_ICR_ARLOCF		9
+#define I2C_ICR_OVRCF		10
+#define I2C_ICR_PECCF		11
+#define I2C_ICR_TIMOUTCF	12
+#define I2C_ICR_ALERTCF		13
+
+#define I2C_PECR_PEC		0
+#define I2C_RXDR_RXDATA		0
+#define I2C_TXDR_TXDATA		0
+
 #include "stm32f767xx_gpio_driver.h"
 #include "stm32f767xx_spi.h"
+#include "stm32f767xx_i2c.h"
 
 #endif /* DRIVERS_STM32F767XX_H_ */

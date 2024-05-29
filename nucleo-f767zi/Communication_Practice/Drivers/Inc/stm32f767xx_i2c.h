@@ -8,16 +8,47 @@
 #ifndef INC_STM32F767XX_I2C_H_
 #define INC_STM32F767XX_I2C_H_
 
+#include "stm32f767xx.h"
+
 typedef struct {
 	uint32_t SCLSpeed;
 	uint8_t DeviceAddress;
 	uint8_t ACKControl;
-	uint16_t FMDutyCycle;
+	uint8_t SCLHighPeriod;
+	uint8_t SCLLowPeriod;
 } I2C_Config_t;
 
 typedef struct {
 	I2C_RegDef_t* pI2Cx;
 	I2C_Config_t I2CConfig;
 } I2C_Handle_t;
+
+/*
+ * SCL Speed
+ * Standard-mode	: up to 100kHz
+ * Fast-mode		: up to 400kHz
+ * Fast-mode Plus	: up to 1MHz
+ */
+#define I2C_SCL_SPEED_STANDARD		100000
+#define I2C_SCL_SPEED_FAST			400000
+#define I2C_SCL_SPEED_FAST_PLUS		1000000
+
+#define I2C_ACK_ENABLE		1
+#define I2C_ACK_DISABLE		0
+
+void I2C_Peripheral_clock_control(I2C_RegDef_t* pI2Cx, uint8_t EnOrDi);
+void I2C_Initialize(I2C_Handle_t* pI2CHandle);
+void I2C_DeInitialize(I2C_RegDef_t* pI2Cx);
+
+/*
+ * Interrupt APIs
+ */
+void I2C_IRQ_interrupt_config(uint8_t IRQNumber, uint8_t EnOrDi);
+void I2C_IRQ_priority_config(uint8_t IRQNumber, uint32_t IRQPriority);
+
+void I2C_Peripheral_control(I2C_RegDef_t* pI2Cx, uint8_t EnOrDi);
+void I2C_Get_flag_status(I2C_RegDef_t* pI2Cx, uint32_t FlagName);
+
+void I2C_Application_event_callback(I2C_Handle_t* pI2CHandle, uint8_t event);
 
 #endif /* INC_STM32F767XX_I2C_H_ */

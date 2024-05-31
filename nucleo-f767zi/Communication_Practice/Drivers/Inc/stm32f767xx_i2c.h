@@ -56,14 +56,28 @@ typedef struct {
 #define I2C_FAST_MODE_PLUS_16MHZ_SCLDEL			0x2
 
 /*
+ * I2C Flags
+ */
+#define I2C_FLAG_BUSY		(1 << I2C_ISR_BUSY)
+#define I2C_FLAG_OVR		(1 << I2C_ISR_OVR)
+#define I2C_FLAG_STOPF		(1 << I2C_ISR_STOPF)
+#define I2C_FLAG_NACKF		(1 << I2C_ISR_NACKF)
+#define I2C_FLAG_TXE		(1 << I2C_ISR_TXE)
+
+/*
  * ACK Control
  */
 #define I2C_ACK_ENABLE		1
 #define I2C_ACK_DISABLE		0
 
 void I2C_Peripheral_clock_control(I2C_RegDef_t* pI2Cx, uint8_t EnOrDi);
+void I2C_Peripheral_control(I2C_RegDef_t* pI2Cx, uint8_t EnOrDi);
+
 void I2C_Initialize(I2C_Handle_t* pI2CHandle);
 void I2C_DeInitialize(I2C_RegDef_t* pI2Cx);
+
+uint8_t I2C_Get_flag_status(I2C_RegDef_t *pI2Cx, uint32_t flag_name);
+void I2C_Master_send_data(I2C_Handle_t *pHandle, uint8_t *pTxBuffer, uint32_t length, uint8_t slave_address);
 
 /*
  * Interrupt APIs
@@ -71,9 +85,7 @@ void I2C_DeInitialize(I2C_RegDef_t* pI2Cx);
 void I2C_IRQ_interrupt_config(uint8_t IRQNumber, uint8_t EnOrDi);
 void I2C_IRQ_priority_config(uint8_t IRQNumber, uint32_t IRQPriority);
 
-void I2C_Peripheral_control(I2C_RegDef_t* pI2Cx, uint8_t EnOrDi);
 void I2C_Get_flag_status(I2C_RegDef_t* pI2Cx, uint32_t FlagName);
-
 void I2C_Application_event_callback(I2C_Handle_t* pI2CHandle, uint8_t event);
 
 #endif /* INC_STM32F767XX_I2C_H_ */

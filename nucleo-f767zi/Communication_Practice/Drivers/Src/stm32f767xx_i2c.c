@@ -10,6 +10,18 @@
 uint16_t ahb_prescalers[8] = { 2, 4, 8, 16, 64, 128, 256, 512 };
 uint8_t apb1_prescalers[4] = { 2, 4, 8, 16 };
 
+static void I2C_Execute_address_phase(I2C_RegDef_t *pI2Cx, uint8_t slave_address)
+{
+	uint32_t temp = 0;
+
+	slave_address = slave_address << 1;
+
+	temp |= (slave_address << I2C_CR2_SADD);
+	temp &= ~(1 << I2C_CR2_RDWRN);
+
+	pI2Cx->CR2 |= temp;
+}
+
 void I2C_Peripheral_clock_control(I2C_RegDef_t* pI2Cx, uint8_t EnOrDi)
 {
 	if (EnOrDi == ENABLE) {
@@ -32,6 +44,15 @@ void I2C_Peripheral_clock_control(I2C_RegDef_t* pI2Cx, uint8_t EnOrDi)
 		} else if (pI2Cx == I2C4) {
 			I2C4_PCLK_DI();
 		}
+	}
+}
+
+void I2C_Peripheral_control(I2C_RegDef_t* pI2Cx, uint8_t EnOrDi)
+{
+	if (EnOrDi == ENABLE) {
+		pI2Cx->CR1 |= (1 << I2C_CR1_PE);
+	} else {
+		pI2Cx->CR1 &= ~(1 << I2C_CR1_PE);
 	}
 }
 
@@ -114,11 +135,33 @@ void I2C_Initialize(I2C_Handle_t* pI2CHandle)
 	pI2CHandle->pI2Cx->OAR1 |= (temp << 1);
 }
 
-void I2C_Peripheral_control(I2C_RegDef_t* pI2Cx, uint8_t EnOrDi)
+uint8_t I2C_Get_flag_status(I2C_RegDef_t *pI2Cx, uint32_t flag_name)
 {
-	if (EnOrDi == ENABLE) {
-		pI2Cx->CR1 |= (1 << I2C_CR1_PE);
-	} else {
-		pI2Cx->CR1 &= ~(1 << I2C_CR1_PE);
+	if (pI2Cx->ISR & flag_name) {
+		return FLAG_SET;
 	}
+	return FLAG_RESET;
 }
+
+void I2C_Master_send_data(I2C_Handle_t *pHandle, uint8_t *pTxBuffer, uint32_t length, uint8_t slave_address)
+{
+	pHandle->pI2Cx->CR2 |= (1 << I2C_CR2_START);
+
+	while (!I2C_Get_flag_status(pHandle->pI2Cx, I2C_FLAG_BUSY));
+
+	I2C_Execute_address_phase(pHandle->pI2Cx, slave_address);
+
+	while (!I2C_Get_flag_status(pHandle->pI2Cx, I2C_FLAG_ADDR));
+
+	while (length > 0) {
+		while (!I2C_Get_flag_status(pHandle->pI2Cx, I2C_FLAG_TXE));
+		pHandle->pI2Cx->TXDR = *pTxBuffer;
+		pTxBuffer++;
+		length--;
+	}
+
+	while (!I2C_Get_flag_status(pHandle->pI2Cx, I2C_FLAG_TXE));
+
+	pHandle->pI2Cx->CR2 |= (1 << I2C_CR2_STOP);
+}
+

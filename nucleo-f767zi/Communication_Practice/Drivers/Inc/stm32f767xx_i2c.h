@@ -63,6 +63,7 @@ typedef struct {
 #define I2C_FLAG_STOPF		(1 << I2C_ISR_STOPF)
 #define I2C_FLAG_NACKF		(1 << I2C_ISR_NACKF)
 #define I2C_FLAG_TXE		(1 << I2C_ISR_TXE)
+#define I2C_FLAG_ADDR		(1 << I2C_ISR_ADDR)
 
 /*
  * ACK Control

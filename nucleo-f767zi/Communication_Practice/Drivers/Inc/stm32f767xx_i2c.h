@@ -86,7 +86,6 @@ void I2C_Master_send_data(I2C_Handle_t *pHandle, uint8_t *pTxBuffer, uint32_t le
 void I2C_IRQ_interrupt_config(uint8_t IRQNumber, uint8_t EnOrDi);
 void I2C_IRQ_priority_config(uint8_t IRQNumber, uint32_t IRQPriority);
 
-void I2C_Get_flag_status(I2C_RegDef_t* pI2Cx, uint32_t FlagName);
 void I2C_Application_event_callback(I2C_Handle_t* pI2CHandle, uint8_t event);
 
 #endif /* INC_STM32F767XX_I2C_H_ */

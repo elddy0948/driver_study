@@ -107,6 +107,8 @@ void I2C_Initialize(I2C_Handle_t* pI2CHandle)
 {
 	uint32_t temp = 0;
 
+	I2C_Peripheral_clock_control(pI2CHandle->pI2Cx, ENABLE);
+
 	if (pI2CHandle->I2CConfig.SCLSpeed == I2C_SCL_SPEED_STANDARD) {
 		temp |= (I2C_STANDARD_MODE_16MHZ_PRESC << I2C_TIMINGR_PRESC);
 		temp |= (I2C_STANDARD_MODE_16MHZ_SCLH << I2C_TIMINGR_SCLH);

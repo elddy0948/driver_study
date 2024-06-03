@@ -5,9 +5,14 @@
  *      Author: HoJoon
  */
 
+#include <string.h>
 #include "stm32f767xx.h"
 
+#define SLAVE_ADDR		0x68
+
 I2C_Handle_t i2c1_handle;
+
+uint8_t dummy_data[] = "We are testing I2C master Tx\n";
 
 /**
  * ALTERNATE FUNCTION 4
@@ -46,6 +51,14 @@ int main(void)
 {
 	I2C1_GPIO_initialize();
 	I2C1_initialize();
+
+	I2C_Peripheral_control(I2C1, ENABLE);
+
+	while (1) {
+		// Some button or delay
+
+		I2C_Master_send_data(&i2c1_handle, dummy_data, strlen((char*)dummy_data), SLAVE_ADDR);
+	}
 
 	return 0;
 }

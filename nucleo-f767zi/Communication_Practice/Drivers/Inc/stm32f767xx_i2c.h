@@ -14,8 +14,6 @@ typedef struct {
 	uint32_t SCLSpeed;
 	uint8_t DeviceAddress;
 	uint8_t ACKControl;
-	uint8_t SCLHighPeriod;
-	uint8_t SCLLowPeriod;
 } I2C_Config_t;
 
 typedef struct {

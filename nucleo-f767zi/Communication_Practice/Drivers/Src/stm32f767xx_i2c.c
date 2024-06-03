@@ -135,6 +135,19 @@ void I2C_Initialize(I2C_Handle_t* pI2CHandle)
 	pI2CHandle->pI2Cx->OAR1 |= (temp << 1);
 }
 
+void I2C_DeInitialize(I2C_RegDef_t *pI2Cx)
+{
+	if (pI2Cx == I2C1) {
+		I2C1_REG_RESET();
+	} else if (pI2Cx == I2C2) {
+		I2C2_REG_RESET();
+	} else if (pI2Cx == I2C3) {
+		I2C3_REG_RESET();
+	} else if (pI2Cx == I2C4) {
+		I2C4_REG_RESET();
+	}
+}
+
 uint8_t I2C_Get_flag_status(I2C_RegDef_t *pI2Cx, uint32_t flag_name)
 {
 	if (pI2Cx->ISR & flag_name) {

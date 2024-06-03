@@ -324,6 +324,11 @@ typedef struct
 #define I2C3_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 23))
 #define I2C4_PCLK_DI()		(RCC->APB1ENR &= ~(1 << 24))
 
+#define I2C1_REG_RESET()	do { RCC->APB1RSTR |= (1 << 21); RCC->APB1RSTR &= ~(1 << 21); } while (0)
+#define I2C2_REG_RESET()	do { RCC->APB1RSTR |= (1 << 22); RCC->APB1RSTR &= ~(1 << 22); } while (0)
+#define I2C3_REG_RESET()	do { RCC->APB1RSTR |= (1 << 23); RCC->APB1RSTR &= ~(1 << 23); } while (0)
+#define I2C4_REG_RESET()	do { RCC->APB1RSTR |= (1 << 24); RCC->APB1RSTR &= ~(1 << 24); } while (0)
+
 // Some generic macros
 #define ENABLE 			1
 #define DISABLE 		0

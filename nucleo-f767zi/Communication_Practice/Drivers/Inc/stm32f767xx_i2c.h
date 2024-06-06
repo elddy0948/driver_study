@@ -77,6 +77,7 @@ void I2C_DeInitialize(I2C_RegDef_t* pI2Cx);
 
 uint8_t I2C_Get_flag_status(I2C_RegDef_t *pI2Cx, uint32_t flag_name);
 void I2C_Master_send_data(I2C_Handle_t *pHandle, uint8_t *pTxBuffer, uint32_t length, uint8_t slave_address);
+void I2C_Master_receive_data(I2C_Handle_t *pHandle, uint8_t *pRxBuffer, uint32_t length, uint8_t slave_address);
 
 /*
  * Interrupt APIs

@@ -180,3 +180,30 @@ void I2C_Master_send_data(I2C_Handle_t *pHandle, uint8_t *pTxBuffer, uint32_t le
 	pHandle->pI2Cx->CR2 |= (1 << I2C_CR2_STOP);
 }
 
+/**
+ * I2C Master receiver for N <= 255 bytes
+ * Reference Manual p.1203 Figure 369
+ */
+void I2C_Master_receive_data(I2C_Handle_t *pHandle, uint8_t *pRxBuffer, uint32_t length, uint8_t slave_address)
+{
+	uint32_t temp = 0;
+
+	temp |= (length << I2C_CR2_NBYTES);
+//	temp |= (1 << I2C_CR2_AUTOEND);
+	temp |= (slave_address << I2C_CR2_SADD);
+	temp |= (1 << I2C_CR2_RDWRN);
+
+	pHandle->pI2Cx->CR2 = temp;
+
+	pHandle->pI2Cx->CR2 |= (1 << I2C_CR2_START);
+
+	while (length != 0) {
+		while (!(pHandle->pI2Cx->ISR & (1 << I2C_ISR_RXNE)));
+		*(pRxBuffer) = pHandle->pI2Cx->RXDR;
+		length--;
+	}
+
+	while (!(pHandle->pI2Cx->ISR & (1 << I2C_ISR_TC)));
+
+	return;
+}

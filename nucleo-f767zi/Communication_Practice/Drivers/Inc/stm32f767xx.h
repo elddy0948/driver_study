@@ -13,6 +13,30 @@
 
 #define __weak		__attribute__((weak))
 
+/**
+ * Lock Unlock related
+ */
+typedef enum
+{
+	UNLOCKED = 0,
+	LOCKED = 1
+} LockTypeDef;
+
+#define __LOCK(__HANDLE__)						\
+	do {										\
+		if ((__HANDLE__)->Lock == LOCKED) {		\
+			return BUSY;						\
+		}										\
+		else {									\
+			(__HANDLE__)->Lock = LOCKED;		\
+		}										\
+	} while(0)
+
+#define __UNLOCK(__HANDLE__)					\
+	do {										\
+		(__HANDLE__)->Lock = UNLOCKED;			\
+	} while (0)
+
 #define FLASH_AXIM_BASEADDR	0x08000000U
 #define FLASH_ICTM_BASEADDR	0x00200000U
 #define ROM_BASEADDR		0x00100000U
